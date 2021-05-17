@@ -1,0 +1,43 @@
+import formatDuration from 'date-fns/formatDuration';
+
+import styles from '../styles/TrailState.module.css';
+
+const OPENING_HOURS = [
+  [9, [16, 30]], // January
+  [9, [16, 30]], // February
+  [9, [17, 0]],    // March
+  [8, [18, 30]], // April
+  [8, [19, 30]], // May
+  [8, [21, 0]], // June
+  [8, [21, 0]], // July
+  [8, [20, 30]], // August
+  [8, [19, 30]], // September
+  [8, [19, 0]], // October
+  [9, [16, 30]], // November
+  [9, [16, 30]], // December
+]
+export default function TrailState({ state, stateDescription }) {
+  const month = new Date().getMonth();
+  const [start, [end, endMinutes]] = OPENING_HOURS[month];
+  const hours = new Date().getHours();
+  const minutes = new Date().getMinutes();
+
+  if (hours < start) {
+    const opensIn = formatDuration({ minutes: ((start - hours) * 60) - minutes });
+    return <div className={styles.badge} style={{ backgroundColor: 'var(--red)' }}>{`Geschlossen! Öffnet in: ${opensIn}`}</div>
+  }
+
+  if (hours > end || (hours === end && minutes > endMinutes)) {
+    return <div className={styles.badge} style={{ backgroundColor: 'var(--red)' }}>Heute bereits geschlosssen!</div>
+  }
+
+  switch (state) {
+    case 0:
+      return <div className={styles.badge} style={{ backgroundColor: 'var(--green)' }}>Ok</div>
+    case 1:
+      return <div className={styles.badge} style={{ backgroundColor: 'var(--yellow)' }}>Vorsicht! {stateDescription}</div>
+    case 2:
+    default:
+      return <div className={styles.badge} style={{ backgroundColor: 'var(--red)' }}>Gesperrt! {stateDescription}</div>
+  }
+}
